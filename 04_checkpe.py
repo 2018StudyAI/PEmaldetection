@@ -7,6 +7,19 @@ import pickle
 from sklearn.externals import joblib
 import sys
 import argparse
+import tqdm
+import pandas as pd
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--datadir', help='dataset path', required=True)
+parser.add_argument('-o', '--output', help='output path', default='./output')
+args = parser.parse_args()
+
+if not os.path.exists(args.datadir):
+    parser.error("{} does not exist".format(args.datadir))
+
+if not os.path.exists(args.output):
+    os.mkdir(args.output)
 
 def get_entropy(data):
     if len(data) == 0:
@@ -161,7 +174,6 @@ def extract_infos(fpath):
     except AttributeError:
         res['LoadConfigurationSize'] = 0
 
-
     # Version configuration size
     try:
         version_infos = get_version_info(pe)
@@ -170,27 +182,47 @@ def extract_infos(fpath):
         res['VersionInformationSize'] = 0
     return res
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Detect malicious files')
-    parser.add_argument('FILE', help='File to be tested')
-    args = parser.parse_args()
+def main():
     # Load classifier
     clf = joblib.load(os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        'classifier/classifier.pkl'
+        './script/classifier/classifier.pkl'
     ))
     features = pickle.loads(open(os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        'classifier/features.pkl'),
+        './script/classifier/features.pkl'),
         'r').read()
     )
 
-    data = extract_infos(args.FILE)
+    column_hash = []
+    column_resultofpredict = []
+    errlist = []
 
-    pe_features = map(lambda x:data[x], features)
+    for _filename in tqdm.tqdm(os.listdir(args.datadir)):
+        path = os.path.join(args.datadir, _filename)
+        try:
+            data = extract_infos(path)
+            pe_features = map(lambda x:data[x], features)
+            
+            #get a result(malicious, legitimate)
+            res= clf.predict([pe_features])[0]
+            column_resultofpredict.append(res)
+            column_hash.append(_filename)
+        except KeyboardInterrupt:
+            sys.exit()
+        except:
+            column_resultofpredict.append(0)
+            column_hash.append(_filename)
+            errlist.append(_filename)
+            
+    #print error list
+    print("Error {}".format(len(errlist)))
+    for filename in errlist:
+        print(filename)
+    
+    #save result
+    r = pd.DataFrame({'hash': column_hash, 'y_pred': column_resultofpredict})
+    r.to_csv(os.path.join(args.output, 'result.csv'), index=False, header=None)
 
-    res= clf.predict([pe_features])[0]
-    print('%s	%s'%(
-        os.path.basename(sys.argv[1]),
-        ['malicious', 'legitimate'][res])
-    )
+if __name__ == '__main__':
+    main()

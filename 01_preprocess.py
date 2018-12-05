@@ -14,8 +14,6 @@ if not os.path.exists(args.csv):
     parser.error('{} does not exist'.format(args.csv))
 if not os.path.exists(args.datadir):
     parser.error('{} does not exist'.format(args.datadir))
-if not os.path.exists(args.output):
-    os.mkdir(args.output)
 
 def main():
     data = pd.read_csv(args.csv, names=['hash', 'y'])

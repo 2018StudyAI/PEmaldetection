@@ -1,2 +1,2 @@
 #!/bin/sh
-python ../learning.py -c ~/Downloads/train.csv
+python ../03_learning.py -c ~/Downloads/train.csv

@@ -2,20 +2,24 @@ import pandas as pd
 import numpy as np
 import pickle
 import sklearn.ensemble as ske
-from sklearn import cross_validation, tree, linear_model
+from sklearn import tree, linear_model
 from sklearn.feature_selection import SelectFromModel
 from sklearn.externals import joblib
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import confusion_matrix
 import argparse
+from sklearn.model_selection import train_test_split
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--csv', help='features csv', required=True)
-
 args = parser.parse_args()
 
+if not os.path.exists('classifier'):
+    os.mkdir('classifier')
+
 if not os.path.exists(args.csv):
-    parser.error("{} does not exist".format(args.csv)
+    parser.error("{} does not exist".format(args.csv))
 
 data = pd.read_csv(args.csv, sep='|')
 X = data.drop(['Name', 'md5', 'legitimate'], axis=1).values
@@ -29,7 +33,7 @@ model = SelectFromModel(fsel, prefit=True)
 X_new = model.transform(X)
 nb_features = X_new.shape[1]
 
-X_train, X_test, y_train, y_test = cross_validation.train_test_split(X_new, y ,test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X_new, y ,test_size=0.2)
 
 features = []
 
