@@ -1,4 +1,4 @@
-# Antivirus Demo
+fork URL: https://github.com/CircleZ3791117/PEMalDetection.git
 
 Overview
 ============
@@ -6,20 +6,11 @@ This project helps train a classifier to be able to detect [PE files](https://en
 
 Dependencies
 ============
-
-* pandas ```pip install pandas```
-* numpy ```pip install numpy```
-* pickle ```pip install pickle```
-* scipy ```pip install scipy```
-* scikit ```pip install -U scikit-learn```
-
-Use [pip](https://pypi.python.org/pypi/pip) to install any missing dependencies
+```
+$ source [virtualenv]
+$ pip install -r requirements.txt
+```
 
 Basic Usage
 ===========
-
-1. Run ```python learning.py``` to train the model. It will train on the dataset included called 'data.csv'.
-
-2. Once trained you can test the model via ```python checkpe.py YOUR_PE_FILE```. It will output either malicious or legitimate!
-
-That's it!
+script/01_preprocess.sh -> script/02_generatedata.sh -> script/03_learning.sh -> script/04_predict.sh
