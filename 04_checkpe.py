@@ -186,11 +186,11 @@ def main():
     # Load classifier
     clf = joblib.load(os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        './script/classifier/classifier.pkl'
+        'classifier/classifier.pkl'
     ))
     features = pickle.loads(open(os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        './script/classifier/features.pkl'),
+        'classifier/features.pkl'),
         'r').read()
     )
 

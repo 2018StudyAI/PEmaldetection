@@ -1,6 +1,7 @@
 import pandas as pd
 import argparse
 import os
+import tqdm
 
 legitmatepath = 'legitimate'
 malicouspath = 'malicious'
@@ -14,21 +15,24 @@ if not os.path.exists(args.csv):
     parser.error('{} does not exist'.format(args.csv))
 if not os.path.exists(args.datadir):
     parser.error('{} does not exist'.format(args.datadir))
+if not os.path.exists(legitmatepath):
+    os.mkdir(legitmatepath)
+if not os.path.exists(malicouspath):
+    os.mkdir(malicouspath)
 
 def main():
     data = pd.read_csv(args.csv, names=['hash', 'y'])
 
-    for index, row in data.iterrows():
-        name = row['hash']
-        y = row['y']
-        srcpath = os.path.join(args.datadir, name)
-        dstpath = ''
+    for _name in tqdm.tqdm(os.listdir(args.datadir)):
+        path = os.path.join(args.datadir, _name)
+        y = data[data.hash==_name].values[0][1]
 
-        if y == 0:
-            dstpath = os.path.join('../', legitmatepath, name)
+        if y is 1:
+            dstpath = os.path.join(malicouspath, _name)
         else:
-            dstpath = os.path.join('../', malicouspath, name)
-        os.rename(srcpath, dstpath)
+            dstpath = os.path.join(legitmatepath, _name)
+
+        os.rename(path, dstpath)
 
 if __name__=='__main__':
     main()
